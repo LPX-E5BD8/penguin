@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/kr/pretty"
 )
 
+// Bug mysql bug information
 type Bug struct {
 	ID           int
 	URL          string
@@ -28,13 +28,13 @@ type Bug struct {
 	CPUArch      []string
 }
 
-const bugApiTemplate = "https://bugs.mysql.com/bug.php?id=%d"
+const bugAPITemplate = "https://bugs.mysql.com/bug.php?id=%d"
 const timeFMT = "2 Jan 2006 15:04"
 
 // New prepare a new bug struct
 func (bug *Bug) New(id int) *Bug {
 	bug.ID = id
-	bug.URL = fmt.Sprintf(bugApiTemplate, id)
+	bug.URL = fmt.Sprintf(bugAPITemplate, id)
 	return bug
 }
 
@@ -50,6 +50,11 @@ func (bug *Bug) Analysis(wg *sync.WaitGroup) *Bug {
 		}
 
 		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(res))
+		if doc == nil {
+			Logger.Println("goquery.NewDocumentFromReader Error: ", err)
+			return
+		}
+
 		doc.Find("#bugheader").Find("td").Each(func(i int, selection *goquery.Selection) {
 			value := compressStr(strings.TrimSpace(selection.Text()))
 			switch i {
@@ -85,7 +90,6 @@ func (bug *Bug) Analysis(wg *sync.WaitGroup) *Bug {
 				bug.Triage = value
 			}
 		})
-		pretty.Println(bug)
 	}()
 	return bug
 }

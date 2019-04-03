@@ -1,7 +1,7 @@
 package model
 
 import (
-	"bufio"
+	"compress/gzip"
 	"crypto/md5"
 	"encoding/hex"
 	"io/ioutil"
@@ -75,7 +75,22 @@ func dumpCache(data []byte, label, cacheDir string) {
 		return
 	}
 
-	wr := bufio.NewWriter(f)
+	// gzip data
+	wr := gzip.NewWriter(f)
+	defer func() {
+		err = wr.Flush()
+		if err != nil {
+			Logger.Println("dumpCache wr.Flush(): ", err)
+			return
+		}
+
+		err = wr.Close()
+		if err != nil {
+			Logger.Println("dumpCache wr.Close(data): ", err)
+			return
+		}
+	}()
+
 	_, err = wr.Write(data)
 	if err != nil {
 		Logger.Println("dumpCache wr.Write(data): ", err)
@@ -89,7 +104,19 @@ func dumpCache(data []byte, label, cacheDir string) {
 func loadCache(label, cacheDir string) (data []byte, err error) {
 	label = MD5Sum(label)
 	cacheFile := path.Join(cacheDir, label)
-	return ioutil.ReadFile(cacheFile)
+	f, err := os.Open(cacheFile)
+	if err != nil {
+		return nil, err
+	}
+
+	// gzip reader
+	gzr, err := gzip.NewReader(f)
+	if err != nil {
+		Logger.Println("loadCache zlib.NewReader(f):", err)
+		return nil, err
+	}
+
+	return ioutil.ReadAll(gzr)
 }
 
 // no safe string to bytes

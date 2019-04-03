@@ -32,10 +32,10 @@ const (
 )
 
 const baseURL = "https://dev.mysql.com"
-const releaseNoteApiTemplate = baseURL + "/doc/relnotes/mysql/%s/en/"
+const releaseNoteAPITemplate = baseURL + "/doc/relnotes/mysql/%s/en/"
 
 func NewReleaseInfo(version string) (*ReleaseInfo, error) {
-	uri := fmt.Sprintf(releaseNoteApiTemplate, version)
+	uri := fmt.Sprintf(releaseNoteAPITemplate, version)
 	res, err := HTTPGetWithCache(uri, CacheDir)
 	if err != nil {
 		return nil, err
@@ -43,6 +43,10 @@ func NewReleaseInfo(version string) (*ReleaseInfo, error) {
 
 	ri := &ReleaseInfo{Version: version}
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(res))
+	if err != nil {
+		return nil, err
+	}
+
 	doc.Find("span.section").Find("a").Each(func(i int, selection *goquery.Selection) {
 		href, _ := selection.Attr("href")
 		if rn := new(ReleaseNote).setMeta(selection.Text(), uri+href); rn != nil {
@@ -53,15 +57,17 @@ func NewReleaseInfo(version string) (*ReleaseInfo, error) {
 	wg := &sync.WaitGroup{}
 	for _, rn := range ri.Info {
 		wg.Add(1)
-		go func(note *ReleaseNote) {
-			defer wg.Done()
-			if err := note.Analysis(); err != nil {
-				Logger.Println("note.Analysis() err:", err, "ref:", note.URL)
-			}
-		}(rn)
+		err = Pool.Submit(func() {
+			func(note *ReleaseNote) {
+				defer wg.Done()
+				if err := note.Analysis(); err != nil {
+					Logger.Println("note.Analysis() err:", err, "ref:", note.URL)
+				}
+			}(rn)
+		})
 	}
 	wg.Wait()
-	return ri, nil
+	return ri, err
 }
 
 // ReleaseNote mysql release note
@@ -115,11 +121,15 @@ func (rn *ReleaseNote) Analysis() error {
 
 	wg := new(sync.WaitGroup)
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(res))
+	if err != nil {
+		return err
+	}
+
 	doc.Find("div.simplesect").Each(func(i int, selection *goquery.Selection) {
 		class := strings.TrimSpace(selection.Find("div.titlepage").Text())
 		selection.Find("li.listitem").Each(func(i int, selection *goquery.Selection) {
 			// Analysis ReleaseNoteItem
-			rn.Items = append(rn.Items, new(ReleaseNoteItem).Analysis(class, selection, wg))
+			rn.Items = append(rn.Items, new(ReleaseNoteItem).Analysis(rn, class, selection, wg))
 		})
 	})
 

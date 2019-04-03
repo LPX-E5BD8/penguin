@@ -15,6 +15,12 @@
 			"revisionTime": "2018-10-12T15:44:24Z"
 		},
 		{
+			"checksumSHA1": "YtkqO9PyythyZEqlbxqcF1Jq+f0=",
+			"path": "github.com/jroimartin/gocui",
+			"revision": "c055c87ae801372cd74a0839b972db4f7697ae5f",
+			"revisionTime": "2018-04-11T15:50:10Z"
+		},
+		{
 			"checksumSHA1": "3ohk4dFYrERZ6WTdKkIwnTA0HSI=",
 			"path": "github.com/kr/pretty",
 			"revision": "73f6ac0b30a98e433b289500d779f50c1a6f0712",
@@ -25,6 +31,24 @@
 			"path": "github.com/kr/text",
 			"revision": "e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f",
 			"revisionTime": "2018-05-06T08:24:08Z"
+		},
+		{
+			"checksumSHA1": "qR7D38Zmn9TPUvGn64k+r0+Kq1c=",
+			"path": "github.com/mattn/go-runewidth",
+			"revision": "703b5e6b11ae25aeb2af9ebb5d5fdf8fa2575211",
+			"revisionTime": "2018-12-18T00:06:49Z"
+		},
+		{
+			"checksumSHA1": "0N1/QS8LCmFj0+qYsodpW10fLRI=",
+			"path": "github.com/nsf/termbox-go",
+			"revision": "288510b9734e30e7966ec2f22b87c5f8e67345e3",
+			"revisionTime": "2019-03-25T09:31:21Z"
+		},
+		{
+			"checksumSHA1": "V8U64c+vgMuDw8wGX6XTzLBb/gs=",
+			"path": "github.com/panjf2000/ants",
+			"revision": "4ae3fb8dc413492862469027bb58cb45b77338f1",
+			"revisionTime": "2019-02-22T16:46:49Z"
 		},
 		{
 			"checksumSHA1": "Vj7GeUWk9nB69/MbXIbzm7fmKn4=",

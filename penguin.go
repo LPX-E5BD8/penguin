@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/liipx/penguin/model"
+	"github.com/liipx/penguin/ui"
 )
 
 func main() {
-	info, _ := model.NewReleaseInfo(model.Version55)
-	fmt.Println(info)
+	ui.Run()
 }

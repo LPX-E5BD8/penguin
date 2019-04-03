@@ -14,25 +14,28 @@ type Link struct {
 	URL   string
 }
 
+// ReleaseNoteItem mysql release note item
 type ReleaseNoteItem struct {
 	Class        string
 	Content      string
 	Tags         []string
 	RelatedLinks []*Link
 	RelatedBugs  []*Bug
+	ReleaseNote  *ReleaseNote
 }
 
 // Analysis ReleaseNoteItem from *goquery.Selection
-func (item *ReleaseNoteItem) Analysis(class string, selection *goquery.Selection, wg *sync.WaitGroup) *ReleaseNoteItem {
+func (item *ReleaseNoteItem) Analysis(relNote *ReleaseNote, class string, selection *goquery.Selection, wg *sync.WaitGroup) *ReleaseNoteItem {
 	wg.Add(1)
-	go func() {
+	_ = Pool.Submit(func() {
 		defer wg.Done()
 		item.Class = class
 		item.Tags = analysisTags(selection)
 		item.RelatedLinks = analysisLinks(selection)
-		item.Content = strings.TrimSpace(selection.Text())
+		item.Content = selection.Text()
 		item.RelatedBugs = analysisBugs(item.Content)
-	}()
+		item.ReleaseNote = relNote
+	})
 	return item
 }
 
@@ -50,7 +53,11 @@ func analysisLinks(selection *goquery.Selection) []*Link {
 
 func analysisTags(selection *goquery.Selection) []string {
 	tagStr := selection.Find("span.bold").Find("strong").Text()
-	return strings.Split(strings.Trim(tagStr, ":"), ";")
+	tags := make([]string, 0)
+	for _, tag := range strings.Split(strings.Trim(tagStr, ":"), ";") {
+		tags = append(tags, strings.TrimSpace(tag))
+	}
+	return tags
 }
 
 func analysisBugs(content string) []*Bug {

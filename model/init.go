@@ -4,16 +4,24 @@ import (
 	"log"
 	"os"
 	"path"
+
+	"github.com/panjf2000/ants"
 )
 
 // base dir
 var WorkDir = path.Join(os.Getenv("HOME"), ".penguin")
-// log dir
+
+// LogDir to save log
 var LogDir = path.Join(WorkDir, "log")
-// cache dir
+
+// CacheDir to save cache files
 var CacheDir = path.Join(WorkDir, "cache")
-// Logger
+
+// Logger for app
 var Logger *log.Logger
+var LogFile *os.File
+
+var Pool, _ = ants.NewPool(100)
 
 func init() {
 	dirValidation()
@@ -37,10 +45,11 @@ func dirValidation() {
 }
 
 func loggerInit() {
-	logFile, err := os.OpenFile(path.Join(LogDir, "penguin.log"), os.O_APPEND|os.O_CREATE, 0666)
+	var err error
+	LogFile, err = os.OpenFile(path.Join(LogDir, "penguin.log"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatalln("fail to create log file:", err)
 	}
 
-	Logger = log.New(logFile, "", log.LstdFlags|log.Lshortfile)
+	Logger = log.New(LogFile, "", log.LstdFlags|log.Lshortfile)
 }
