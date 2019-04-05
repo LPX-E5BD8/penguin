@@ -28,6 +28,7 @@ var (
 var (
 	// usage items
 	usageContent = []string{
+		"PgUp/PgDn: Turn the page",
 		"← ↑: Move cursor",
 		"Enter: Confirm selection",
 		"Tab: Change view focus",
@@ -72,6 +73,20 @@ func cursorDown(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+// move cursor down without check
+func cursorDownNoLimit(g *gocui.Gui, v *gocui.View) error {
+	if v != nil {
+		cx, cy := v.Cursor()
+		if err := v.SetCursor(cx, cy+1); err != nil {
+			ox, oy := v.Origin()
+			if err := v.SetOrigin(ox, oy+1); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // move cursor up
 func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
@@ -79,6 +94,36 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 		cx, cy := v.Cursor()
 		if err := v.SetCursor(cx, cy-1); err != nil && oy > 0 {
 			if err := v.SetOrigin(ox, oy-1); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// view pageup
+func pageUp(g *gocui.Gui, v *gocui.View) error {
+	if v != nil {
+		_, y := v.Size()
+		ox, oy := v.Origin()
+		cx, cy := v.Cursor()
+		if err := v.SetCursor(cx, cy-y); err != nil && oy > 0 {
+			if err := v.SetOrigin(ox, oy-y); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// view pagedown
+func pageDown(g *gocui.Gui, v *gocui.View) error {
+	if v != nil {
+		_, y := v.Size()
+		cx, cy := v.Cursor()
+		if err := v.SetCursor(cx, cy+y); err != nil {
+			ox, oy := v.Origin()
+			if err := v.SetOrigin(ox, oy+y); err != nil {
 				return err
 			}
 		}

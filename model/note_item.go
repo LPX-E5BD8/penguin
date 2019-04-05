@@ -32,7 +32,7 @@ func (item *ReleaseNoteItem) Analysis(relNote *ReleaseNote, class string, select
 		item.Class = class
 		item.Tags = analysisTags(selection)
 		item.RelatedLinks = analysisLinks(selection)
-		item.Content = selection.Text()
+		item.Content = strings.TrimRight(strings.TrimLeft(selection.Text(), "\n"), "\n")
 		item.RelatedBugs = analysisBugs(item.Content)
 		item.ReleaseNote = relNote
 	})

@@ -20,7 +20,16 @@ var sidebarContent = []string{
 }
 
 // key bindings for sidebar
-func sidebarKeyBinding(g *gocui.Gui) error {
+func sidebarKeyBindings(g *gocui.Gui) error {
+	for _, viewName := range []string{sidebarView, optionView, loggerView} {
+		if err := g.SetKeybinding(viewName, gocui.KeyArrowUp, gocui.ModNone, cursorUp); err != nil {
+			return err
+		}
+		if err := g.SetKeybinding(viewName, gocui.KeyArrowDown, gocui.ModNone, cursorDown); err != nil {
+			return err
+		}
+	}
+
 	if err := g.SetKeybinding(sidebarView, gocui.KeyEnter, gocui.ModNone, selectVersion); err != nil {
 		return err
 	}
@@ -73,6 +82,13 @@ func selectOption(g *gocui.Gui, v *gocui.View) error {
 		if err != nil {
 			return err
 		}
+
+		if err := v.SetCursor(0, 0); err != nil {
+			if err := v.SetOrigin(0, 0); err != nil {
+				return err
+			}
+		}
+
 		v.Clear()
 		v.Wrap = true
 		x, _ := v.Size()
@@ -86,7 +102,7 @@ func selectOption(g *gocui.Gui, v *gocui.View) error {
 
 			for _, bug := range item.RelatedBugs {
 				_, _ = fmt.Fprintln(v,
-					fmt.Sprintf("BUG #%d [%s]: %s", bug.ID, bug.Title, bug.URL),
+					fmt.Sprintf("BUG #%d <%s>: %s", bug.ID, bug.Title, bug.URL),
 				)
 			}
 

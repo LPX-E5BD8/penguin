@@ -79,8 +79,6 @@ func Layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView || v == nil {
 			return err
 		}
-
-		v.Highlight = true
 	}
 
 	// set log view
@@ -103,7 +101,12 @@ func keyBindings(g *gocui.Gui) error {
 	}
 
 	// sidebar key bind
-	if err := sidebarKeyBinding(g); err != nil {
+	if err := sidebarKeyBindings(g); err != nil {
+		return err
+	}
+
+	// content key bind
+	if err := contentKeyBindings(g); err != nil {
 		return err
 	}
 
@@ -117,12 +120,6 @@ func globalKeyBindings(g *gocui.Gui) error {
 
 	for _, viewName := range viewArr {
 		if err := g.SetKeybinding(viewName, gocui.KeyTab, gocui.ModNone, nextView); err != nil {
-			return err
-		}
-		if err := g.SetKeybinding(viewName, gocui.KeyArrowUp, gocui.ModNone, cursorUp); err != nil {
-			return err
-		}
-		if err := g.SetKeybinding(viewName, gocui.KeyArrowDown, gocui.ModNone, cursorDown); err != nil {
 			return err
 		}
 		// show about details
