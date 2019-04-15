@@ -37,6 +37,7 @@ func cacheOptions(info *model.ReleaseInfo) {
 					tag = "No Tags"
 				}
 
+				// options cache for tag
 				if _, ok := options[info.Version][tag]; !ok {
 					options[info.Version][tag] = make([]*model.ReleaseNoteItem, 0)
 				}
@@ -45,6 +46,16 @@ func cacheOptions(info *model.ReleaseInfo) {
 					options[info.Version][tag] = append(options[info.Version][tag], item)
 					tmpMap[tag+item.Content] = struct{}{}
 				}
+			}
+
+			// options cache for class
+			if _, ok := options[info.Version][item.Class]; !ok {
+				options[info.Version][item.Class] = make([]*model.ReleaseNoteItem, 0)
+			}
+
+			if _, ok := tmpMap[item.Class+item.Content]; !ok {
+				options[info.Version][item.Class] = append(options[info.Version][item.Class], item)
+				tmpMap[item.Class+item.Content] = struct{}{}
 			}
 		}
 	}
